@@ -178,7 +178,7 @@ parse_ban(struct vcc *tl)
 	ExpectErr(tl, '(');
 	vcc_NextToken(tl);
 
-	Fb(tl, 1, "VRT_ban_string(req, ");
+	Fb(tl, 1, "VRT_ban_string(req, 0, ");
 	vcc_Expr(tl, STRING);
 	ERRCHK(tl);
 	Fb(tl, 0, ");\n");
@@ -197,12 +197,32 @@ parse_ban_url(struct vcc *tl)
 	ExpectErr(tl, '(');
 	vcc_NextToken(tl);
 
-	Fb(tl, 1, "VRT_ban(req, \"req.url\", \"~\", ");
+	Fb(tl, 1, "VRT_ban(req, 0, \"req.url\", \"~\", ");
 	vcc_Expr(tl, STRING);
 	ERRCHK(tl);
 	ExpectErr(tl, ')');
 	vcc_NextToken(tl);
 	Fb(tl, 0, ", 0);\n");
+}
+
+/*--------------------------------------------------------------------*/
+
+static void
+parse_softban(struct vcc *tl)
+{
+
+	vcc_NextToken(tl);
+
+	ExpectErr(tl, '(');
+	vcc_NextToken(tl);
+
+	Fb(tl, 1, "VRT_ban_string(req, 1, ");
+	vcc_Expr(tl, STRING);
+	ERRCHK(tl);
+	Fb(tl, 0, ");\n");
+
+	ExpectErr(tl, ')');
+	vcc_NextToken(tl);
 }
 
 /*--------------------------------------------------------------------*/
@@ -320,6 +340,7 @@ static struct action_table {
 	{ "hash_data",		parse_hash_data, VCL_MET_HASH },
 	{ "ban",		parse_ban },
 	{ "ban_url",		parse_ban_url },
+	{ "softban",		parse_softban },
 	{ "remove",		parse_unset }, /* backward compatibility */
 	{ "return",		parse_return },
 	{ "rollback",		parse_rollback },

@@ -149,8 +149,8 @@ int VRT_re_match(struct req *, const char *, void *re);
 const char *VRT_regsub(struct req *, int all, const char *,
     void *, const char *);
 
-void VRT_ban(const struct req *, char *, ...);
-void VRT_ban_string(const struct req *, const char *);
+void VRT_ban(const struct req *, int, char *, ...);
+void VRT_ban_string(const struct req *, int, const char *);
 void VRT_purge(struct req *, double ttl, double grace);
 
 void VRT_count(struct req *, unsigned);

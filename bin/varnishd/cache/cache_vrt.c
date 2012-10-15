@@ -415,7 +415,7 @@ VRT_synth_page(const struct req *req, unsigned flags, const char *str, ...)
 /*--------------------------------------------------------------------*/
 
 void
-VRT_ban(const struct req *req, char *cmds, ...)
+VRT_ban(const struct req *req, int soft, char *cmds, ...)
 {
 	char *a1, *a2, *a3;
 	va_list ap;
@@ -424,6 +424,7 @@ VRT_ban(const struct req *req, char *cmds, ...)
 
 	CHECK_OBJ_NOTNULL(req, REQ_MAGIC);
 	b = BAN_New();
+	BAN_Set_Soft(b, soft);
 	va_start(ap, cmds);
 	a1 = cmds;
 	good = 0;
@@ -450,7 +451,7 @@ VRT_ban(const struct req *req, char *cmds, ...)
 /*--------------------------------------------------------------------*/
 
 void
-VRT_ban_string(const struct req *req, const char *str)
+VRT_ban_string(const struct req *req, int soft, const char *str)
 {
 	char *a1, *a2, *a3;
 	char **av;
@@ -466,6 +467,7 @@ VRT_ban_string(const struct req *req, const char *str)
 		return;
 	}
 	b = BAN_New();
+	BAN_Set_Soft(b, soft);
 	good = 0;
 	for (i = 1; ;) {
 		a1 = av[i++];

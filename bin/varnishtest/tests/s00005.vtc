@@ -1,0 +1,59 @@
+varnishtest "Softbans from VCL"
+
+server s1 {
+	rxreq
+	txresp
+
+	sema r1 sync 3
+
+	rxreq
+	txresp
+} -start
+
+varnish v1 -vcl+backend {
+	sub vcl_recv {
+	    if (req.request == "SOFTBAN") {
+	       softban("req.url ~ " + req.url);
+	       error 410;
+	    }
+	}
+
+	sub vcl_hit {
+	    if (obj.ttl <= 0s) {
+	    	    set req.http.grace = "t";
+	    }
+	}
+	sub vcl_fetch { 
+		set beresp.ttl = 1m;
+		set beresp.grace = 1m; 
+	}
+	sub vcl_deliver {
+	    set resp.http.grace = req.http.grace;
+	}
+} -start
+
+client c1 {
+	txreq
+	rxresp
+	expect resp.status == 200
+	delay 1
+	txreq
+	sema r1 sync 3
+	rxresp
+} -start
+
+delay 1
+client c2 {
+	txreq -req SOFTBAN -url /
+	rxresp
+	expect resp.status == 410
+} -run
+
+
+client c3 {
+	sema r1 sync 3
+	txreq
+	rxresp
+	expect resp.http.grace == "t"
+	expect resp.status == 200
+} -run
